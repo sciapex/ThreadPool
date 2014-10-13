@@ -157,7 +157,8 @@ int tpool_destroy(tpool_t *pool, int finish)
     /* clean up memory */
     free(pool->threads);
     while(pool->queue_head != NULL) {
-        cur = pool->queue_head->next;
+        //cur = pool->queue_head->next; error
+        cur = pool->queue_head;
         pool->queue_head = pool->queue_head->next;
         free(cur);
     }
