@@ -5,16 +5,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <pthread.h>
+
 
 /* a generic thread pool creation routines */
-
+/* 线程池工作队列节点信息 */
 typedef struct tpool_work{
-    void *(*handler_routine)(void *arg);
-    void *arg;
-    struct tpool_work *next;
+    void *(*handler_routine)(void *arg);  /* 调用句柄 */
+    void *arg;               /* 句柄参数 */
+    struct tpool_work *next; /* 节点指针 */
 } tpool_work_t;
 
+/* 线程池信息 */
 typedef struct tpool{
     int num_threads;            /* 工作线程数 */
     int max_queue_size;         /* 队列最大值 */
@@ -47,6 +48,8 @@ tpool_t *tpool_init(int num_worker_threads,
     int max_queue_size, int do_not_block_when_full);
 
 /*****************************************************************************
+ * tpool_add:线程池增加节点
+ * pool: 线程池指针
  * routine:工作业务处理
  * 成功返回0, 失败返回-1
  * **************************************************************************/
