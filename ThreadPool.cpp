@@ -179,7 +179,7 @@ int tpool_add(tpool_t *pool, void *(*routine)(void *), void *arg)
     if((pool->cur_queue_size == pool->max_queue_size) &&
             (pool->do_not_block_when_full)) {
         pthread_mutex_unlock(&pool->queue_lock);
-        return -1;
+        return -2;
     }
 
     /* wait for the queue to have an open space for new work, while
@@ -191,7 +191,7 @@ int tpool_add(tpool_t *pool, void *(*routine)(void *), void *arg)
 
     if(pool->shutdown || pool->queue_closed) {
         pthread_mutex_unlock(&pool->queue_lock);
-        return -1;
+        return -3;
     }
 
     /* allocate the work structure */
