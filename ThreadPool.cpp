@@ -86,8 +86,11 @@ int tpool_destroy(tpool_t *pool, int finish)
     int i, rtn;
     tpool_work_t *cur;   /*当前工作线程句柄*/
 
-
     /* destroy pool begin! */
+    if(pool == NULL) {
+        return 0;
+    }
+    
     /* relinquish control of the queue */
     if((rtn = pthread_mutex_lock(&(pool->queue_lock))) != 0) {
         //lprintf(log,FATAL,"pthread mutex lock failure\n");
@@ -163,6 +166,7 @@ int tpool_destroy(tpool_t *pool, int finish)
         free(cur);
     }
     free(pool);
+    pool = NULL;
 
     //lprintf(log, INFO, "destroy pool end!\n");
     return 0;
