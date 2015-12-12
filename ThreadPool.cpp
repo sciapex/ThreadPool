@@ -189,11 +189,11 @@ int tpool_add(tpool_t *pool, void *(*routine)(void *), void *arg)
     /* wait for the queue to have an open space for new work, while
      *      * waiting the queue_lock will be released */
     while((pool->cur_queue_size == pool->max_queue_size) &&
-            (!(pool->shutdown || pool->queue_closed))) {
+            (!(pool->shutdown))) {
         pthread_cond_wait(&(pool->queue_not_full), &(pool->queue_lock));
     }
 
-    if(pool->shutdown || pool->queue_closed) {
+    if(pool->shutdown) {
         pthread_mutex_unlock(&pool->queue_lock);
         return -3;
     }
