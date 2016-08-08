@@ -6,61 +6,67 @@
 #include <string.h>
 #include <pthread.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* a generic thread pool creation routines */
-/* çº¿ç¨‹æ± å·¥ä½œé˜Ÿåˆ—èŠ‚ç‚¹ä¿¡æ¯ */
+/* Ïß³Ì³Ø¹¤×÷¶ÓÁĞ½ÚµãĞÅÏ¢ */
 typedef struct tpool_work{
-    void *(*handler_routine)(void *arg);  /* è°ƒç”¨å¥æŸ„ */
-    void *arg;               /* å¥æŸ„å‚æ•° */
-    struct tpool_work *next; /* èŠ‚ç‚¹æŒ‡é’ˆ */
+    void *(*handler_routine)(void *arg);  /* µ÷ÓÃ¾ä±ú */
+    void *arg;               /* ¾ä±ú²ÎÊı */
+    struct tpool_work *next; /* ½ÚµãÖ¸Õë */
 } tpool_work_t;
 
-/* çº¿ç¨‹æ± ä¿¡æ¯ */
+/* Ïß³Ì³ØĞÅÏ¢ */
 typedef struct tpool{
-    int num_threads;            /* å·¥ä½œçº¿ç¨‹æ•° */
-    int max_queue_size;         /* é˜Ÿåˆ—æœ€å¤§å€¼ */
-    int do_not_block_when_full; /* å½“é˜Ÿåˆ—æ»¡æ—¶ä¸é˜»å¡:1,ä¸é˜»å¡, 0,é˜»å¡*/
-    int cur_queue_size;         /* å½“å‰é˜Ÿåˆ—å¤§å° */
-    int queue_closed;           /* é˜Ÿåˆ—å…³é—­æ ‡è®° */
-    int shutdown;               /* æ± å…³é—­æ ‡è®°   */
+    int num_threads;            /* ¹¤×÷Ïß³ÌÊı */
+    int max_queue_size;         /* ¶ÓÁĞ×î´óÖµ */
+    int do_not_block_when_full; /* µ±¶ÓÁĞÂúÊ±²»×èÈû:1,²»×èÈû, 0,×èÈû*/
+    int cur_queue_size;         /* µ±Ç°¶ÓÁĞ´óĞ¡ */
+    int queue_closed;           /* ¶ÓÁĞ¹Ø±Õ±ê¼Ç */
+    int shutdown;               /* ³Ø¹Ø±Õ±ê¼Ç   */
 
-    pthread_t    *threads;          /* çº¿ç¨‹å·         */
-    tpool_work_t *queue_head;       /* é˜Ÿåˆ—å¤´         */
-    tpool_work_t *queue_tail;       /* é˜Ÿåˆ—å°¾         */
+    pthread_t    *threads;          /* Ïß³ÌºÅ         */
+    tpool_work_t *queue_head;       /* ¶ÓÁĞÍ·         */
+    tpool_work_t *queue_tail;       /* ¶ÓÁĞÎ²         */
             
-    pthread_mutex_t queue_lock;     /* é˜Ÿåˆ—äº’æ–¥é‡     */
-    pthread_cond_t queue_not_full;  /* é˜Ÿåˆ—æœªæ»¡æ¡ä»¶å˜é‡ */
-    pthread_cond_t queue_not_empty; /* é˜Ÿåˆ—æœªç©ºæ¡ä»¶å˜é‡ */
-    pthread_cond_t queue_empty;     /* é˜Ÿåˆ—ç©ºæ¡ä»¶å˜é‡ */
+    pthread_mutex_t queue_lock;     /* ¶ÓÁĞ»¥³âÁ¿     */
+    pthread_cond_t queue_not_full;  /* ¶ÓÁĞÎ´ÂúÌõ¼ş±äÁ¿ */
+    pthread_cond_t queue_not_empty; /* ¶ÓÁĞÎ´¿ÕÌõ¼ş±äÁ¿ */
+    pthread_cond_t queue_empty;     /* ¶ÓÁĞ¿ÕÌõ¼ş±äÁ¿ */
 } tpool_t;
     
 /* private:static */
 /* static void tpool_thread(tpool_t *pool); */
 
 /******************************************************************************
- * tpool_initçº¿ç¨‹æ± åˆå§‹åŒ–
- * num_worker_threads:çº¿ç¨‹æ± çº¿ç¨‹ä¸ªæ•°
- * max_queue_size:æœ€å¤§ä»»åŠ¡æ•°
- * do_not_block_when_full: ä»»åŠ¡æ»¡æ—¶æ˜¯å¦é˜»å¡
- * å¤±è´¥è¿”å›NULL
+ * tpool_initÏß³Ì³Ø³õÊ¼»¯
+ * num_worker_threads:Ïß³Ì³ØÏß³Ì¸öÊı
+ * max_queue_size:×î´óÈÎÎñÊı
+ * do_not_block_when_full: ÈÎÎñÂúÊ±ÊÇ·ñ×èÈû
+ * Ê§°Ü·µ»ØNULL
 ******************************************************************************/
 tpool_t *tpool_init(int num_worker_threads,
     int max_queue_size, int do_not_block_when_full);
 
 /*****************************************************************************
- * tpool_add:çº¿ç¨‹æ± å¢åŠ èŠ‚ç‚¹
- * pool: çº¿ç¨‹æ± æŒ‡é’ˆ
- * routine:å·¥ä½œä¸šåŠ¡å¤„ç†
- * æˆåŠŸè¿”å›0, å¤±è´¥è¿”å›-1
+ * tpool_add:Ïß³Ì³ØÔö¼Ó½Úµã
+ * pool: Ïß³Ì³ØÖ¸Õë
+ * routine:¹¤×÷ÒµÎñ´¦Àí
+ * ³É¹¦·µ»Ø0, Ê§°Ü·µ»Ø-1
  * **************************************************************************/
 int tpool_add(tpool_t *pool, void *(*routine)(void *), void *arg);
 
 /******************************************************************************
- * tpool_destroy: çº¿ç¨‹æ± é”€æ¯
- * pool: çº¿ç¨‹æ± æŒ‡é’ˆ
- * finish: æ˜¯å¦åˆ¤æ–­é˜Ÿåˆ—ä»»åŠ¡å·²ç»éƒ½å®Œæˆ
- * æˆåŠŸè¿”å›0, å¤±è´¥è¿”å›-1
+ * tpool_destroy: Ïß³Ì³ØÏú»Ù
+ * pool: Ïß³Ì³ØÖ¸Õë
+ * finish: ÊÇ·ñÅĞ¶Ï¶ÓÁĞÈÎÎñÒÑ¾­¶¼Íê³É
+ * ³É¹¦·µ»Ø0, Ê§°Ü·µ»Ø-1
  * ***************************************************************************/
 int tpool_destroy(tpool_t *pool, int finish);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __THREADPOOL_H */
