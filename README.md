@@ -1,5 +1,5 @@
 ThreadPool
 ==========
 
-That's a thread pool, funny
+That's a thread pool, funny.
 This is invalid，just old code
